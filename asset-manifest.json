@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Funeraria/static/css/main.d03355e5.css",
+    "main.js": "/Funeraria/static/js/main.00dd052d.js",
+    "index.html": "/Funeraria/index.html",
+    "main.d03355e5.css.map": "/Funeraria/static/css/main.d03355e5.css.map",
+    "main.00dd052d.js.map": "/Funeraria/static/js/main.00dd052d.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d03355e5.css",
+    "static/js/main.00dd052d.js"
+  ]
+}
