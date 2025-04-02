@@ -1,58 +1,62 @@
-import React, { useState } from 'react';
-
-const fetchCoffinsData = async () => {
-  
-  return [
-    {
-      id: 1,
-      name: 'Caixão Standard',
-      material: 'Madeira Pinus',
-      size: '200cm',
-      price: 1200.00,
-      image: 'https://via.placeholder.com/300x200?text=Caixão+Standard'
-    },
-    {
-      id: 2,
-      name: 'Caixão Premium',
-      material: 'Madeira Carvalho',
-      size: '210cm',
-      price: 2500.00,
-      image: 'https://via.placeholder.com/300x200?text=Caixão+Premium'
-    },
-    {
-      id: 3,
-      name: 'Caixão Luxo',
-      material: 'Mogno',
-      size: '220cm',
-      price: 3800.00,
-      image: 'https://via.placeholder.com/300x200?text=Caixão+Luxo'
-    },
-    {
-      id: 4,
-      name: 'Caixão Econômico',
-      material: 'Compensado',
-      size: '190cm',
-      price: 800.00,
-      image: 'https://via.placeholder.com/300x200?text=Caixão+Econômico'
-    },
-  ];
-};
+import React, { useState, useEffect } from 'react';
 
 const Coffins = ({ navigateTo, selectCoffin }) => {
+  const [coffins, setCoffins] = useState([]);
   const [selectedCoffin, setSelectedCoffin] = useState(null);
+  const [loading, setLoading] = useState(true); // Para indicar que os dados estão sendo carregados
+  const [error, setError] = useState(null); // Para armazenar erros, caso ocorram
+
+  // Fetch coffins data using GET method on component mount
+  useEffect(() => {
+    const getCoffinsData = async () => {
+      try {
+        // Usando o método GET para buscar os dados da API
+        const response = await fetch('http://localhost:8000/api/coffins/', {
+          method: 'GET', // Definindo o método GET explicitamente
+          headers: {
+            'Content-Type': 'application/json', // Especificando o tipo de conteúdo esperado
+            // Adicione o token de autenticação aqui, caso necessário:
+            // 'Authorization': `Bearer ${yourToken}`,
+          },
+        });
+
+        // Verifica se a resposta é OK (status 200-299)
+        if (!response.ok) {
+          throw new Error('Falha na requisição');
+        }
+
+        // Transformando a resposta em JSON
+        const data = await response.json();
+        console.log(data)
+        
+        // Atualiza o estado com os dados obtidos
+        setCoffins(data);
+      } catch (err) {
+        setError(err.message); // Armazena a mensagem de erro
+      } finally {
+        setLoading(false); // Finaliza o estado de carregamento
+      }
+    };
+
+    getCoffinsData(); // Chama a função para buscar os dados
+  }, []); // O array vazio garante que o efeito seja executado uma única vez quando o componente montar
 
   const handleSelect = (coffin) => {
     setSelectedCoffin(coffin);
-    selectCoffin(coffin);
+    selectCoffin(coffin); // Chama a função selectCoffin passada como prop
   };
 
   const handleProceed = () => {
     if (selectedCoffin) {
-      navigateTo('payment');
+      navigateTo('payment'); // Navega para a página de pagamento
     } else {
       alert('Por favor, selecione um caixão antes de prosseguir.');
     }
   };
+
+  // Exibição condicional durante o carregamento ou erro
+  if (loading) return <p>Carregando caixões...</p>;
+  if (error) return <p>Erro ao carregar caixões: {error}</p>;
 
   return (
     <div className="coffins">
@@ -61,16 +65,16 @@ const Coffins = ({ navigateTo, selectCoffin }) => {
         <p>Escolha o caixão que melhor atende às suas necessidades.</p>
 
         <div className="coffins-grid">
-          {fetchCoffinsData.map(coffin => (
+          {coffins.map(coffin => (
             <div 
               key={coffin.id} 
               className={`coffin-card ${selectedCoffin?.id === coffin.id ? 'selected' : ''}`}
               onClick={() => handleSelect(coffin)}
             >
-              <img src={coffin.image} alt={coffin.name} />
-              <h3>{coffin.name}</h3>
+              <img src={coffin.image} alt={coffin.model} />
+              <h3>{coffin.model}</h3>
               <p><strong>Material:</strong> {coffin.material}</p>
-              <p><strong>Tamanho:</strong> {coffin.size}</p>
+              <p><strong>Tamanho:</strong> {coffin.size} cm</p>
               <p><strong>Preço:</strong> R$ {coffin.price.toFixed(2)}</p>
             </div>
           ))}
@@ -80,7 +84,7 @@ const Coffins = ({ navigateTo, selectCoffin }) => {
           {selectedCoffin && (
             <>
               <h3>Caixão Selecionado:</h3>
-              <p><strong>Modelo:</strong> {selectedCoffin.name}</p>
+              <p><strong>Modelo:</strong> {selectedCoffin.model}</p>
               <p><strong>Preço:</strong> R$ {selectedCoffin.price.toFixed(2)}</p>
             </>
           )}
